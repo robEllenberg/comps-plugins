@@ -3,8 +3,7 @@
 for pkg in generalik cbirrt2 manipulation2
 do
    cd $pkg
-   rm -rf build
-   mkdir build
+   [ -d build ] || mkdir build
    cd build
    cmake ../
    make

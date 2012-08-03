@@ -13,7 +13,6 @@ if( NOT DEFINED ENV{PLUGIN_INSTALL_DIR} )
 else( NOT DEFINED ENV{PLUGIN_INSTALL_DIR} )
     set(PLUGIN_INSTALL_DIR "$ENV{PLUGIN_INSTALL_DIR}")
 endif( NOT DEFINED ENV{PLUGIN_INSTALL_DIR} )
-
 include(FindOpenRAVE.cmake)
 
 if( NOT OPENRAVE_FOUND )
@@ -29,8 +28,4 @@ set_target_properties(GeneralIK PROPERTIES
 include_directories(${OPENRAVE_INCLUDE_DIRS} ${THIRDPARTY_DIR}/inc/newmat)
 target_link_libraries(GeneralIK ${OPENRAVE_LIBRARY} qhull newmat)
 
-#-- Get the openrave share directory
-EXEC_PROGRAM("openrave-config --share-dir" OUTPUT_VARIABLE OpenRAVE_SHARE_DIR)
-message(STATUS "Openrave Share directory: ${OpenRAVE_SHARE_DIR}")
-install(TARGETS GeneralIK DESTINATION ${OpenRAVE_SHARE_DIR} )
-
+install(TARGETS GeneralIK DESTINATION ${PLUGIN_INSTALL_DIR} )

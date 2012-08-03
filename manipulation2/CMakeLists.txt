@@ -11,9 +11,12 @@ if( CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX )
     add_definitions("-fno-strict-aliasing ")
 endif()
 
-#-- Get the openrave share directory
-EXEC_PROGRAM("openrave-config --share-dir" OUTPUT_VARIABLE OpenRAVE_SHARE_DIR)
-message(STATUS "Openrave Share directory: ${OpenRAVE_SHARE_DIR}")
+if( NOT DEFINED ENV{PLUGIN_INSTALL_DIR} )
+    set(PLUGIN_INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../plugins")
+else( NOT DEFINED ENV{PLUGIN_INSTALL_DIR} )
+    set(PLUGIN_INSTALL_DIR "$ENV{PLUGIN_INSTALL_DIR}")
+endif( NOT DEFINED ENV{PLUGIN_INSTALL_DIR} )
+include(FindOpenRAVE.cmake)
 
 find_package(Boost COMPONENTS regex)
 
@@ -25,5 +28,4 @@ include_directories(${OPENRAVE_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
 link_directories(${OPENRAVE_LINK_DIRS} ${Boost_LIBRARY_DIRS})
 target_link_libraries(manipulation ${OPENRAVE_LIBRARY} ${Boost_LIBRARIES})
 
-install(TARGETS manipulation DESTINATION ${OpenRAVE_SHARE_DIR}/plugins  )
-
+install(TARGETS manipulation DESTINATION ${PLUGIN_INSTALL_DIR} )

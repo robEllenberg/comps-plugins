@@ -1,4 +1,3 @@
-#Rearranged to install to openrave plugins dir and removed ROS section for simplicity
 if( CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX )
     add_definitions("-fno-strict-aliasing ")
 endif()
@@ -9,9 +8,11 @@ if(POLICY CMP0015)
 endif()
 project (cbirrt)
 
-#-- Get the openrave share directory
-EXEC_PROGRAM("openrave-config --share-dir" OUTPUT_VARIABLE OpenRAVE_SHARE_DIR)
-message(STATUS "Openrave Share directory: ${OpenRAVE_SHARE_DIR}")
+if( NOT DEFINED ENV{PLUGIN_INSTALL_DIR} )
+    set(PLUGIN_INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../plugins")
+else( NOT DEFINED ENV{PLUGIN_INSTALL_DIR} )
+    set(PLUGIN_INSTALL_DIR "$ENV{PLUGIN_INSTALL_DIR}")
+endif( NOT DEFINED ENV{PLUGIN_INSTALL_DIR} )
 
 include(FindOpenRAVE.cmake)
 
@@ -27,5 +28,5 @@ set_target_properties(cbirrt PROPERTIES
 include_directories(${OPENRAVE_INCLUDE_DIRS} ${THIRDPARTY_DIR}/inc/newmat)
 target_link_libraries(cbirrt ${OPENRAVE_LIBRARY} qhull newmat)
 
-install(TARGETS cbirrt DESTINATION ${OpenRAVE_SHARE_DIR}/plugins )
+install(TARGETS cbirrt DESTINATION ${PLUGIN_INSTALL_DIR} )
 

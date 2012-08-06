@@ -3,6 +3,6 @@
 *.so
 CMakeCache*
 CMakeFiles
-*.cmake
 .svn
 Makefile
+cmake_*

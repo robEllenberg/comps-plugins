@@ -1,8 +1,5 @@
 *.a
 *.o
 *.so
-CMakeCache*
-CMakeFiles
 .svn
-Makefile
-cmake_*
+build

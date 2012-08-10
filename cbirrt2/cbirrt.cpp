@@ -1262,12 +1262,12 @@ bool CBirrtPlanner::_CreateTraj(TrajectoryBasePtr ptraj)
     std::vector<dReal> velocitylimits(_parameters->_vConfigLowerLimit.size(),1);
     _parameters->_vConfigVelocityLimit = velocitylimits;
 
-#if OPENRAVE_VERSION >= OPENRAVE_VERSION_COMBINED(0,7,0)
+#if OPENRAVE_VERSION >= OPENRAVE_VERSION_COMBINED(0,6,0)
     /* Calling PlannerBase::_ProcessPostPlanners segfaults here when
      * using OpenRAVE 0.7.0 (2012-04-17), so I switched to the following
      * retiming function.
      * Does _ProcessPostPlanners do something different that we need? */
-    OpenRAVE::planningutils::RetimeActiveDOFTrajectory(ptraj,_pRobot,false,1.0,1.0,"","");
+    OpenRAVE::planningutils::RetimeActiveDOFTrajectory(ptraj,_pRobot,false,1.0,"","");
 #else
     _ProcessPostPlanners(_pRobot,ptraj);
 #endif

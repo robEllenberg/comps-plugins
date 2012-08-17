@@ -1267,7 +1267,8 @@ bool CBirrtPlanner::_CreateTraj(TrajectoryBasePtr ptraj)
      * using OpenRAVE 0.7.0 (2012-04-17), so I switched to the following
      * retiming function.
      * Does _ProcessPostPlanners do something different that we need? */
-    OpenRAVE::planningutils::RetimeActiveDOFTrajectory(ptraj,_pRobot,false,1.0,"","");
+    //NOTE: Changed 1.0 to 0.5 to fix a velocity displacement issue, likely not the right way to do it.
+    OpenRAVE::planningutils::RetimeActiveDOFTrajectory(ptraj,_pRobot,false,0.5,"","");
 #else
     _ProcessPostPlanners(_pRobot,ptraj);
 #endif

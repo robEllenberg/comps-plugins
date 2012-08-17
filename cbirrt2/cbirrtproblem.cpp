@@ -268,7 +268,7 @@ bool CBirrtProblem::DoGeneralIK(ostream& sout, istream& sinput)
 
 
         if( !sinput ) {
-            RAVELOG_DEBUG("failed\n");
+            RAVELOG_DEBUG("Failed due to empty input string\n");
             return false;
         }
     }

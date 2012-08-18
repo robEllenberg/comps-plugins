@@ -19,7 +19,7 @@ function out=makeTSR(tsr)
         %TODO: fix this later
         tsr.Bw=tsr.Bw'
     end
-    Bw_string= sprintf('%f ',tsr.Bw(:)');
+    Bw_string= sprintf('%g ',tsr.Bw(:)');
 
     out= [ num2str(tsr.manipindex) ' ' tsr.bodyandlink ' ' T0_w_string ' ' Tw_e_string ' ' Bw_string ];
 end

@@ -1,8 +1,8 @@
-function out=runCBiRRT(cmd)
+function cmdString=makecbirrtcmd(cmd)
 
     %% Build string based on fields
     fn=fieldnames(cmd)';
-    cmdString='';
+    cmdString='RunCBiRRT ';
     for str=fn
         %TODO: refactor this to operate directly on cell array of string names
 
@@ -13,7 +13,6 @@ function out=runCBiRRT(cmd)
             cmdString=sprintf('%s%s',cmdString,buildField());
         end
     end
-    cmdString
 
     function sout=supportlinks()
         numLinks=length(cmd.supportlinks);
@@ -23,13 +22,13 @@ function out=runCBiRRT(cmd)
     function sout=jointgoals()
         numJoints=length(cmd.jointgoals)
         %TODO: error check with activeDOFs?
-        sout=['jointgoals ',sprintf('%f ',cmd.jointgoals)];
+        sout=sprintf('jointgoals %d %s',numJoints,sprintf('%g ',cmd.jointgoals));
     end
 
     function sout=jointstarts()
         numJoints=length(cmd.jointstarts)
         %TODO: error check with activeDOFs?
-        sout=['jointstarts ', sprintf('%f ',cmd.jointstarts)];
+        sout=sprintf('jointstarts %d %s',numJoints,sprintf('%g ',cmd.jointstarts));
     end
 
     function sout=filename()
@@ -37,11 +36,11 @@ function out=runCBiRRT(cmd)
     end
 
     function sout=timelimit()
-        sout=sprintf('timelimit %f ',cmd.timelimit);
+        sout=sprintf('timelimit %g ',cmd.timelimit);
     end
 
     function sout=smoothingitrs()
-        sout=sprintf('smoothingitrs %f ',cmd.smoothingitrs);
+        sout=sprintf('smoothingitrs %d ',cmd.smoothingitrs);
     end
 
     function sout=cmdChain()
@@ -57,8 +56,7 @@ function out=runCBiRRT(cmd)
     end
 
     function sout=psample()
-        sout=sprintf('psample %f ',cmd.psample);
+        sout=sprintf('psample %g ',cmd.psample);
     end
-
 
 end

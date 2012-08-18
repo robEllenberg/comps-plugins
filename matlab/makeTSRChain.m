@@ -9,7 +9,7 @@ function out=makeTSRChain(chain)
         end
     end
     
-    fn = {'bSampleStartFromChain'   'bSampleGoalFromChain'   'bConstrainToChain'};
+    fn = {'sampleStart'   'sampleGoal'   'constrain'};
 
     for str=fn
         if ~isfield(chain,char(str)) || isempty(chain.(char(str)))
@@ -40,7 +40,7 @@ function out=makeTSRChain(chain)
     end
     
     out = sprintf('TSRChain %d %d %d %d %s %s',...
-        chain.bSampleStartFromChain,chain.bSampleGoalFromChain,chain.bConstrainToChain,...
+        chain.sampleStart,chain.sampleGoal,chain.constrain,...
         numchains, allTSRstring,mimicString);
     
 end

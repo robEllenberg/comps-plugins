@@ -3,16 +3,14 @@ function out=makeTSR(tsr)
     %% Build string based on fields
     fn = {'manipindex' 'bodyandlink' 'T0_w' 'Tw_e' 'Bw'};
 
-    for str=fn
-        %Auto Fill empty fields (will throw errors if field is required)
-        if ~isfield(tsr,char(str)) || isempty(tsr.(char(str)))
-            tsr.((char(str)))='NULL';
-            if strcmp(char(str),'Tw_e')
-                tsr.Tw_e=MakeTransform();
-            end
-        end
+    if ~isfield(tsr,'Tw_e')
+        tsr.Tw_e=MakeTransform();
     end
-
+    if ~isfield(tsr,'bodyandlink')
+        %Assume world coordinates
+        tsr.bodyandlink='NULL';
+    end
+    
     T0_w_string=sprintf('%g ',[GetRot(tsr.T0_w),GetTrans(tsr.T0_w)]);
     Tw_e_string=sprintf('%g ',[GetRot(tsr.Tw_e),GetTrans(tsr.Tw_e)]);
     if isequal(size(tsr.Bw),[6 2])

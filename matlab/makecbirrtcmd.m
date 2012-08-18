@@ -1,14 +1,26 @@
 function cmdString=makecbirrtcmd(cmd)
 
     %% Build string based on fields
-    fn=fieldnames(cmd)';
+    
     cmdString='RunCBiRRT ';
+    
+    %Fill in any defaults here
+    numChains=length(cmd.tsrchains)
+    if numChains>0 && ~isfield(cmd,'psample')
+        cmd.psample=.05
+    end
+    
+    if numChains>0 && ~isfield(cmd,'timelimit')
+        cmd.timelimit=30;
+    end
+    
+    fn=fieldnames(cmd)';
     for str=fn
         %TODO: refactor this to operate directly on cell array of string names
 
         if ~isempty(cmd.(char(str)))
             warning off
-            buildField=str2func(['runCBiRRT/',char(str)]);
+            buildField=str2func(['makecbirrtcmd/',char(str)]);
             warning on
             cmdString=sprintf('%s%s',cmdString,buildField());
         end
@@ -43,14 +55,15 @@ function cmdString=makecbirrtcmd(cmd)
         sout=sprintf('smoothingitrs %d ',cmd.smoothingitrs);
     end
 
-    function sout=cmdChain()
-        numChains=length(cmd.cmdChain)
+    function sout=tsrchains()
+           
+        sout='';
         for k=1:numChains
 
-            if isstruct(cmd.cmdChain{k})
-                %TODO: Serialize cmd Chain from struct
-            elseif isstr(cmd.cmdChain{k})
-                sout=cmd.cmdChain{k};
+            if isstruct(cmd.tsrchains{k})
+                sout=[sout ' ' makeTSRChain(cmd.tsrchains{k}) ' '];
+            elseif isstr(cmd.tsrchains{k})
+                sout=[sout ' ' cmd.tsrchains{k} ' '];
             end
         end
     end

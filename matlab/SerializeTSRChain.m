@@ -48,4 +48,3 @@ if(numel(mimicbodyjoints) ~= 0)
     outstring = [outstring ' ' num2str(numel(mimicbodyjoints)) ' ' num2str(mimicbodyjoints)];
 end
 
-

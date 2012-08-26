@@ -3,3 +3,4 @@
 *.so
 .svn
 build
+*.swp

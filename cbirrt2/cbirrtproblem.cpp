@@ -234,7 +234,6 @@ bool CBirrtProblem::DoGeneralIK(ostream& sout, istream& sinput)
             Ttarg = Transform(tmtarg);
 
             ikparams.push_back(Ttarg.rot.x); ikparams.push_back(Ttarg.rot.y); ikparams.push_back(Ttarg.rot.z); ikparams.push_back(Ttarg.rot.w);
-                //Support links are acted on here. Need to differentiate which links are start, goal, and constraint
             ikparams.push_back(Ttarg.trans.x); ikparams.push_back(Ttarg.trans.y); ikparams.push_back(Ttarg.trans.z);
         }
         else if( stricmp(cmd.c_str(), "movecog") == 0 ) {
@@ -465,7 +464,6 @@ bool CBirrtProblem::CheckSupport(ostream& sout, istream& sinput)
     cgline[1] = center;
     cgline[1].z = 0;
 
-
     std::vector<RaveVector<float> > fcgline;
     for(int i =0; i < 2; i++)
         fcgline.push_back(RaveVector<float>(cgline[i].x,cgline[i].y,cgline[i].z));
@@ -485,7 +483,7 @@ bool CBirrtProblem::CheckSupport(ostream& sout, istream& sinput)
         sout << 0 << " ";
     }
     
-    //Rob's attempt to export the support polygon as a string...
+    // Export CoM data and support polygon as a string for use in MATLAB
     sout << fTotalMass << " " << center.x << " " << center.y << " " << center.z;
     
     for (int k=0;k<polyx.size();k++)
@@ -718,17 +716,6 @@ int CBirrtProblem::RunCBirrt(ostream& sout, istream& sinput)
             }
         }
         else if(stricmp(cmd.c_str(), "supportlinks") == 0 ){
-            //TODO: In the input, add a bitmask for each link to determine
-            //whether they are active for init, goal, or constraint. The info
-            //should be stored in the param structure alongside vsupportlinks.
-            //It should be a vector or array of the same length as the support
-            //links structure.
-            //Potential issues: Every link now has to be independenly checked
-            //and skipped for conflicts. This means deep changes in the
-            //CheckSupport functions and possibly GetSupportPolygons
-            //TODO: everywhere support links are checked (presumably in the
-            //check support function), add an additional check for these new
-            //bits. 
             sinput >> numsupportlinks;
             for(int i =0; i < numsupportlinks; i++)
             {
@@ -789,8 +776,7 @@ int CBirrtProblem::RunCBirrt(ostream& sout, istream& sinput)
             return -1;
         }
     }
-    
-    //Support links are acted on here. Need to differentiate which links are start, goal, and constraint
+
     if(supportlinks.size() != 0)
         GetSupportPolygon(supportlinks,params->vsupportpolyx,params->vsupportpolyy,polyscale,polytrans);
 
@@ -1248,7 +1234,7 @@ void CBirrtProblem::GetSupportPolygon(std::vector<string>& supportlinks, std::ve
 {
     int numsupportlinks = supportlinks.size();
 
-    std::list<KinBody::Link::GEOMPROPERTIES> _listGeomProperties;
+    std::vector<boost::shared_ptr<KinBody::Link::Geometry> >_listGeomProperties;
     std::vector<Vector> points;
     AABB bounds;
     //get points on trimeshes of support links
@@ -1261,11 +1247,12 @@ void CBirrtProblem::GetSupportPolygon(std::vector<string>& supportlinks, std::ve
             {
                 RAVELOG_DEBUG("Found match!\n");
                 _listGeomProperties = vlinks[j]->GetGeometries();
+
                 //compute AABBs for the link at identity
                 
                 if( _listGeomProperties.size() == 1){
-                    Transform _t = _listGeomProperties.front().GetTransform().inverse();
-                    bounds = _listGeomProperties.front().ComputeAABB(_t);
+                    Transform _t = _listGeomProperties.front()->GetTransform().inverse();
+                    bounds = _listGeomProperties.front()->ComputeAABB(_t);
                     Transform offset = vlinks[j]->GetTransform()*_t;
                     points.push_back(offset*Vector(bounds.pos.x + bounds.extents.x,bounds.pos.y + bounds.extents.y,bounds.pos.z - bounds.extents.z));
                     points.push_back(offset*Vector(bounds.pos.x - bounds.extents.x,bounds.pos.y + bounds.extents.y,bounds.pos.z - bounds.extents.z));

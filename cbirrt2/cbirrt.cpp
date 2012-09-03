@@ -1246,6 +1246,7 @@ bool CBirrtPlanner::_CreateTraj(TrajectoryBasePtr ptraj)
             tempbody = _parameters->vTSRChains[i].GetMimicBody();
             if(tempbody == NULL)
                 continue;
+            //RAVELOG_INFO("Processing TSR Chain with Mimic Body %d\n", i);
 
             for (int k = 0; k < _parameters->vTSRChains[i].GetNumMimicDOF(); k++)
                 vtraj_data.push_back(*(vecpath[f].GetData()+vTSRChainIndexToConfigurationOffset[i] + k));
@@ -1261,17 +1262,15 @@ bool CBirrtPlanner::_CreateTraj(TrajectoryBasePtr ptraj)
 
     std::vector<dReal> velocitylimits(_parameters->_vConfigLowerLimit.size(),1);
     _parameters->_vConfigVelocityLimit = velocitylimits;
+    _parameters->_vConfigAccelerationLimit = velocitylimits;
+    _parameters->_vConfigResolution = velocitylimits;
 
-#if OPENRAVE_VERSION >= OPENRAVE_VERSION_COMBINED(0,6,0)
-    /* Calling PlannerBase::_ProcessPostPlanners segfaults here when
-     * using OpenRAVE 0.7.0 (2012-04-17), so I switched to the following
-     * retiming function.
-     * Does _ProcessPostPlanners do something different that we need? */
-    //NOTE: Changed 1.0 to 0.5 to fix a velocity displacement issue, likely not the right way to do it.
-    OpenRAVE::planningutils::RetimeActiveDOFTrajectory(ptraj,_pRobot,false,0.5,"","");
-#else
+    std::vector<dReal> initconfig;
+    ptraj->GetWaypoints(0,0,initconfig);
+    _parameters->vinitialconfig = initconfig;
+
     _ProcessPostPlanners(_pRobot,ptraj);
-#endif
+
 
     if(ptraj->GetNumWaypoints() != vecpath.size())
     {

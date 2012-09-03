@@ -10,27 +10,25 @@
 # OPENRAVE_LIBRARY - a default library, with priority debug.
 
 # use openrave-config
-MESSAGE( "CMAKE_SOURCE_DIR: " ${CMAKE_SOURCE_DIR} )
-find_program(OPENRAVE_CONFIG_EXECUTABLE NAMES openrave-config DOC "openrave-config executable" PATHS ${CMAKE_SOURCE_DIR})
+find_program(OPENRAVE_CONFIG_EXECUTABLE NAMES openrave-config DOC "openrave-config executable")
 mark_as_advanced(OPENRAVE_CONFIG_EXECUTABLE)
 
 if(OPENRAVE_CONFIG_EXECUTABLE)
   set(OPENRAVE_FOUND 1)
 
   execute_process(
-    COMMAND sh ${OPENRAVE_CONFIG_EXECUTABLE} --cflags
+    COMMAND ${OPENRAVE_CONFIG_EXECUTABLE} --cflags
     OUTPUT_VARIABLE _openraveconfig_cflags
     RESULT_VARIABLE _openraveconfig_failed)
   string(REGEX REPLACE "[\r\n]" " " _openraveconfig_cflags "${_openraveconfig_cflags}")
-  
   execute_process(
-    COMMAND sh ${OPENRAVE_CONFIG_EXECUTABLE} --libs
+    COMMAND ${OPENRAVE_CONFIG_EXECUTABLE} --libs
     OUTPUT_VARIABLE _openraveconfig_ldflags
     RESULT_VARIABLE _openraveconfig_failed)
   string(REGEX REPLACE "[\r\n]" " " _openraveconfig_ldflags "${_openraveconfig_ldflags}")
 
   execute_process(
-    COMMAND sh ${OPENRAVE_CONFIG_EXECUTABLE} --cflags-only-I
+    COMMAND ${OPENRAVE_CONFIG_EXECUTABLE} --cflags-only-I
     OUTPUT_VARIABLE _openraveconfig_includedirs
     RESULT_VARIABLE _openraveconfig_failed)
   string(REGEX REPLACE "[\r\n]" " " _openraveconfig_includedirs "${_openraveconfig_includedirs}")
@@ -39,7 +37,7 @@ if(OPENRAVE_CONFIG_EXECUTABLE)
   separate_arguments(_openraveconfig_includedirs)
 
   execute_process(
-    COMMAND sh ${OPENRAVE_CONFIG_EXECUTABLE} --libs-only-L
+    COMMAND ${OPENRAVE_CONFIG_EXECUTABLE} --libs-only-L
     OUTPUT_VARIABLE _openraveconfig_ldflags
     RESULT_VARIABLE _openraveconfig_failed)
   string(REGEX REPLACE "[\r\n]" " " _openraveconfig_ldflags "${_openraveconfig_ldflags}")
@@ -48,7 +46,7 @@ if(OPENRAVE_CONFIG_EXECUTABLE)
   separate_arguments(_openraveconfig_ldirs)
 
   execute_process(
-    COMMAND sh ${OPENRAVE_CONFIG_EXECUTABLE} --libs-only-l
+    COMMAND ${OPENRAVE_CONFIG_EXECUTABLE} --libs-only-l
     OUTPUT_VARIABLE _openraveconfig_libs
     RESULT_VARIABLE _openraveconfig_failed)
   string(REGEX REPLACE "[\r\n]" " " _openraveconfig_libs "${_openraveconfig_libs}")
@@ -65,12 +63,11 @@ if(OPENRAVE_CONFIG_EXECUTABLE)
 else(OPENRAVE_CONFIG_EXECUTABLE)
   # openrave include files in local directory
   if( MSVC )
-    message("Inside MSVC")
     set(OPENRAVE_FOUND 1)
     set( OPENRAVE_CXXFLAGS "")
     set( OPENRAVE_LINK_FLAGS "")
-    set( OPENRAVE_INCLUDE_DIRS "C:/workspace/openrave/inc;C:/openrave/include")
-    set( OPENRAVE_LINK_DIRS "C:/workspace/openrave/libs;C:/openrave/lib" )
+    set( OPENRAVE_INCLUDE_DIRS "c:/program files/openrave/include")
+    set( OPENRAVE_LINK_DIRS "c:/program files/openrave/libs" )
     set( OPENRAVE_LIBRARY openrave)
     set( OPENRAVE_LIBRARY_RELEASE "openrave")
     set( OPENRAVE_LIBRARY_DEBUG "openrave")

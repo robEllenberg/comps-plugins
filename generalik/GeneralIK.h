@@ -39,15 +39,16 @@ public:
 
     GeneralIK(EnvironmentBasePtr penv);
 
-    virtual bool Init(const RobotBase::ManipulatorPtr pmanip);
-    
+
 #if OPENRAVE_VERSION >= OPENRAVE_VERSION_COMBINED(0,7,0)
     bool Solve(const IkParameterization& param, const std::vector<dReal>& q0, int, boost::shared_ptr<std::vector<dReal> > result, IkReturnPtr) { return false; }
     bool Solve(const OpenRAVE::IkParameterization&, int, std::vector<std::vector<double, std::allocator<double> >, std::allocator<std::vector<double, std::allocator<double> > > >&, boost::shared_ptr<std::vector<boost::shared_ptr<OpenRAVE::IkReturn>, std::allocator<boost::shared_ptr<OpenRAVE::IkReturn> > > >) { return false; }
     bool Solve(const IkParameterization& param, const std::vector<double, std::allocator<double> >&, const std::vector<double, std::allocator<double> >&, int, boost::shared_ptr<std::vector<double, std::allocator<double> > >, OpenRAVE::IkReturnPtr) { return false; }
     bool Solve(const IkParameterization&, const std::vector<double, std::allocator<double> >&, int, std::vector<std::vector<double, std::allocator<double> >, std::allocator<std::vector<double, std::allocator<double> > > >&, boost::shared_ptr<std::vector<boost::shared_ptr<OpenRAVE::IkReturn>, std::allocator<boost::shared_ptr<OpenRAVE::IkReturn> > > >) { return false; }
+    virtual bool Init(RobotBase::ManipulatorConstPtr pconstmanip){RobotBase::ManipulatorPtr pmanip = boost::const_pointer_cast<RobotBase::Manipulator>(pconstmanip); Init(pmanip);}
 #endif
 
+    virtual bool Init(RobotBase::ManipulatorPtr pmanip);
     virtual bool Solve(const IkParameterization& param, const std::vector<dReal>& q0, int filteroptions, boost::shared_ptr< std::vector<dReal> > result){return false;}
 
     virtual bool Solve(const IkParameterization& param, int filteroptions, std::vector< std::vector<dReal> >& qSolutions){return false;}
@@ -61,12 +62,10 @@ public:
     virtual bool GetFreeParameters(std::vector<dReal>& pFreeParameters) const {return false;}
     virtual RobotBasePtr GetRobot() const { return _pRobot; }
 
-    virtual RobotBase::ManipulatorPtr GetManipulator() const {return _pmanip;}
-
+    virtual OpenRAVE::RobotBase::ManipulatorPtr GetManipulator() const {return _pmanip;}
 
     virtual int GetNumFreeParameters(){return 0;}
 private:
-
 
 
     void invConditioning(dReal maxConditionNumber, NEWMAT::SymmetricMatrix& A, NEWMAT::SymmetricMatrix &Afixed);
@@ -84,7 +83,7 @@ private:
     void GetDistanceFromLineSegment(dReal cx, dReal cy, dReal ax, dReal ay,dReal bx, dReal by, dReal& distanceSegment,dReal& xout, dReal& yout);
     void GetClosestPointOnPolygon(Vector& point, Vector& closestpoint, Vector& perpvec);
     RobotBasePtr _pRobot;
-    RobotBase::ManipulatorPtr _pmanip;
+    RobotBase::ManipulatorPtr  _pmanip;
     bool CheckDOFValueIntegrity(const std::vector<dReal>& q_in);
 
 

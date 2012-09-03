@@ -3844,11 +3844,11 @@ int ManipulationProblem::SetTransparency(istream &cmd)
 
     for(int i = 0; i < plinks.size(); i++)
     {
-        std::list<KinBody::Link::GEOMPROPERTIES> geoms = plinks[i]->GetGeometries();
+        std::vector<boost::shared_ptr<KinBody::Link::Geometry> >geoms = plinks[i]->GetGeometries();
 
         for(int j = 0; j < geoms.size(); j++)
         {
-            plinks[i]->GetGeometry(j).SetTransparency(ftransparency);
+            plinks[i]->GetGeometry(j)->SetTransparency(ftransparency);
         }
 
 //        std::list<KinBody::Link::GEOMPROPERTIES>::iterator itr;

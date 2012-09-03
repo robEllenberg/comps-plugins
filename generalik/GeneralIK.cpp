@@ -647,6 +647,7 @@ int GeneralIK::invConditioningBound(dReal maxConditionNumber, NEWMAT::SymmetricM
     //this just reconstructs the A matrix with better conditioning
 	//Afixed << _V * _S * _V.t();
     
+
     //this will do the inversion 
     Afixed << _V * _S.i() * _V.t();
     return didfix;

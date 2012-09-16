@@ -74,16 +74,32 @@ def SerializeTSRChain(bSampleStartFromChain,bSampleGoalFromChain,bConstrainToCha
     return outstring
 
 class TSR():
-    def __init__(self, T0_w_in = mat(eye(4)), Tw_e_in = mat(eye(4)), Bw_in = mat(mat(zeros([1,12]))), manipindex_in = -1, bodyandlink_in = "NULL"):
+    @staticmethod
+    def buildT(w):
+        print type(w)
+        print w[:,3:6]
+        print w[:,0:3].T
+        S=rodrigues(squeeze(asarray(w[:,3:])))
+        return MakeTransform(S,w[:,0:3].T)
+    
+    def __init__(self, T0_w_in = mat(eye(4)), Tw_e_in = mat(eye(4)), Bw_in = mat(mat(zeros([1,12]))), manipindex_in = -1, bodyandlink_in = 'NULL'):
       self.T0_w = T0_w_in
       self.Tw_e = Tw_e_in
       self.Bw = Bw_in
       self.manipindex = manipindex_in
       self.bodyandlink = bodyandlink_in
 
-
     def Serialize(self):
         return '%d %s %s %s %s'%(self.manipindex, self.bodyandlink, SerializeTransform(self.T0_w), SerializeTransform(self.Tw_e), Serialize1DMatrix(self.Bw))
+    
+    def endPose(self):
+        return self.T0_w*self.Tw_e
+    
+    def sample(self):
+        b_range=self.Bw[:,1::2]-self.Bw[:,0::2]
+        b_center=(self.Bw[:,1::2]+self.Bw[:,0::2])/2
+        w=array(random.rand(1,6))*asarray(b_range)+asarray(b_center)
+        return self.endPose()*TSR.buildT(w)
 
 class TSRChain():
     def __init__(self, bSampleStartFromChain_in=0, bSampleGoalFromChain_in=0, bConstrainToChain_in=0, mimicbodyname_in="NULL", mimicbodyjoints_in = []):
@@ -128,5 +144,14 @@ if __name__ == '__main__':
     juiceTSRChain2.insertTSR(juiceTSR)
     print juiceTSRChain1.Serialize()
     print juiceTSRChain2.Serialize()
+    try:
+        import readline
+    except ImportError:
+        print "Module readline not available."
+    else:
+        import rlcompleter
+        readline.parse_and_bind("tab: complete")
+        print "Tab completion enabled via readline module."
     
+    juiceTSR.sample()
 

@@ -76,9 +76,6 @@ def SerializeTSRChain(bSampleStartFromChain,bSampleGoalFromChain,bConstrainToCha
 class TSR():
     @staticmethod
     def buildT(w):
-        print type(w)
-        print w[:,3:6]
-        print w[:,0:3].T
         S=rodrigues(squeeze(asarray(w[:,3:])))
         return MakeTransform(S,w[:,0:3].T)
     

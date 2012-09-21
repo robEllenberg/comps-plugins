@@ -5,3 +5,5 @@
 build
 *.swp
 *.pyc
+cscope.out
+Makefile

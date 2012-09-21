@@ -2,17 +2,6 @@ if( CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX )
   add_definitions("-fno-strict-aliasing ")
 endif()
 
-if (DEFINED ENV{ROS_ROOT})
-
-  cmake_minimum_required(VERSION 2.4.6)
-  include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
-  rosbuild_init()
-  set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
-  rosbuild_add_library(cbirrt cbirrtmain.cpp TaskSpaceRegion.cpp cbirrt.cpp cbirrtproblem.cpp)
-  target_link_libraries(cbirrt qhull newmat)
-
-else (DEFINED ENV{ROS_ROOT})
-
   cmake_minimum_required (VERSION 2.4)
   if(POLICY CMP0015)
     cmake_policy(SET CMP0015 NEW)
@@ -41,4 +30,3 @@ else (DEFINED ENV{ROS_ROOT})
 
   install(TARGETS cbirrt DESTINATION ${PLUGIN_INSTALL_DIR} )
 
-endif (DEFINED ENV{ROS_ROOT})

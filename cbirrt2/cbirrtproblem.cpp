@@ -787,6 +787,8 @@ int CBirrtProblem::RunCBirrt(ostream& sout, istream& sinput)
         //default case: when not sampling starts and no starts specified, use current config as start
         params->vinitialconfig.resize(robot->GetActiveDOF());
         robot->GetActiveDOFValues(params->vinitialconfig);  
+
+
     }
     else
     {
@@ -799,6 +801,13 @@ int CBirrtProblem::RunCBirrt(ostream& sout, istream& sinput)
     //add any goals if they were specified
     for(int i = 0; i < goals.size(); i++)
         params->vgoalconfig.push_back(goals[i]);
+
+    stringstream s;
+    RAVELOG_INFO("vinitialconfig:\n");
+    for(int j = 0 ; j < robot->GetActiveDOF(); j++)
+        s<< params->vinitialconfig[j] << " ";
+    s << endl;        
+    RAVELOG_INFO(s.str().c_str());
 
 
     PlannerBasePtr _pTCplanner; 

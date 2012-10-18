@@ -1259,7 +1259,7 @@ void CBirrtProblem::GetSupportPolygon(std::vector<string>& supportlinks, std::ve
 
                 //compute AABBs for the link at identity
                 
-                if( _listGeomProperties.size() == 1){
+                //if( _listGeomProperties.size() == 1){
                     Transform _t = _listGeomProperties.front()->GetTransform().inverse();
                     bounds = _listGeomProperties.front()->ComputeAABB(_t);
                     Transform offset = vlinks[j]->GetTransform()*_t;
@@ -1272,7 +1272,7 @@ void CBirrtProblem::GetSupportPolygon(std::vector<string>& supportlinks, std::ve
                     points.push_back(offset*Vector(bounds.pos.x - bounds.extents.x,bounds.pos.y + bounds.extents.y,bounds.pos.z + bounds.extents.z));
                     points.push_back(offset*Vector(bounds.pos.x - bounds.extents.x,bounds.pos.y - bounds.extents.y,bounds.pos.z + bounds.extents.z));
                     points.push_back(offset*Vector(bounds.pos.x + bounds.extents.x,bounds.pos.y - bounds.extents.y,bounds.pos.z + bounds.extents.z));
-                }
+                //}
                 break;
             }
 
@@ -1319,7 +1319,7 @@ void CBirrtProblem::GetSupportPolygon(std::vector<string>& supportlinks, std::ve
     }
 
     
-
+    RAVELOG_DEBUG("length of tempvecs is %d\n",tempvecs.size());
     //close the polygon
     tempvecs[tempvecs.size()-1] = Vector(polyx[0],polyy[0],0);
     //GraphHandlePtr graphptr = GetEnv()->drawlinestrip(&tempvecs[0].x,tempvecs.size(),sizeof(tempvecs[0]),5, RaveVector<float>(0, 1, 1, 1));

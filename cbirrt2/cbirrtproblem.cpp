@@ -1260,8 +1260,9 @@ void CBirrtProblem::GetSupportPolygon(std::vector<string>& supportlinks, std::ve
                 //compute AABBs for the link at identity
                 
                 //if( _listGeomProperties.size() == 1){
-                    Transform _t = _listGeomProperties.front()->GetTransform().inverse();
-                    bounds = _listGeomProperties.front()->ComputeAABB(_t);
+                for (size_t i = 0; i<_listGeomProperties.size();++i){
+                    Transform _t = _listGeomProperties[i]->GetTransform().inverse();
+                    bounds = _listGeomProperties[i]->ComputeAABB(_t);
                     Transform offset = vlinks[j]->GetTransform()*_t;
                     points.push_back(offset*Vector(bounds.pos.x + bounds.extents.x,bounds.pos.y + bounds.extents.y,bounds.pos.z - bounds.extents.z));
                     points.push_back(offset*Vector(bounds.pos.x - bounds.extents.x,bounds.pos.y + bounds.extents.y,bounds.pos.z - bounds.extents.z));
@@ -1272,7 +1273,7 @@ void CBirrtProblem::GetSupportPolygon(std::vector<string>& supportlinks, std::ve
                     points.push_back(offset*Vector(bounds.pos.x - bounds.extents.x,bounds.pos.y + bounds.extents.y,bounds.pos.z + bounds.extents.z));
                     points.push_back(offset*Vector(bounds.pos.x - bounds.extents.x,bounds.pos.y - bounds.extents.y,bounds.pos.z + bounds.extents.z));
                     points.push_back(offset*Vector(bounds.pos.x + bounds.extents.x,bounds.pos.y - bounds.extents.y,bounds.pos.z + bounds.extents.z));
-                //}
+                }
                 break;
             }
 

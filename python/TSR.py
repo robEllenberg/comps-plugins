@@ -86,6 +86,9 @@ class TSR():
       self.manipindex = manipindex_in
       self.bodyandlink = bodyandlink_in
 
+    def __eq__(self,other):
+        return self.T0_w==other.T0_w and self.Tw_e==other.Tw_e and self.Bw == other.Bw
+        
     def Serialize(self):
         return '%d %s %s %s %s'%(self.manipindex, self.bodyandlink, SerializeTransform(self.T0_w), SerializeTransform(self.Tw_e), Serialize1DMatrix(self.Bw))
     
@@ -93,8 +96,11 @@ class TSR():
         return self.T0_w*self.Tw_e
     
     def sample(self):
+        #print self.Bw
         b_range=self.Bw[:,1::2]-self.Bw[:,0::2]
         b_center=(self.Bw[:,1::2]+self.Bw[:,0::2])/2
+        #print b_range
+        #print b_center
         w=array(random.rand(1,6))*asarray(b_range)+asarray(b_center)
         return self.endPose()*TSR.buildT(w)
 

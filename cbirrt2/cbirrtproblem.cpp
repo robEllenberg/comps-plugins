@@ -485,7 +485,7 @@ bool CBirrtProblem::CheckSupport(ostream& sout, istream& sinput)
     }
     
     // Export CoM data and support polygon as a string for use in MATLAB
-    sout << fTotalMass << " " << center.x << " " << center.y << " " << center.z;
+    sout << fTotalMass << " " << center.x << " " << center.y << " " << center.z << " ";
     
     for (int k=0;k<polyx.size();k++)
     {

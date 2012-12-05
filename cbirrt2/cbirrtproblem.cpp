@@ -32,6 +32,8 @@
 #include "stdafx.h"
 
 std::vector<GraphHandlePtr> graphptrs;
+GraphHandlePtr supportplotptr;
+GraphHandlePtr cglineptr;
 
 CBirrtProblem::CBirrtProblem(EnvironmentBasePtr penv) : ProblemInstance(penv)
 {
@@ -411,6 +413,7 @@ bool CBirrtProblem::CheckSupport(ostream& sout, istream& sinput)
             sinput >> polytrans.y;
             sinput >> polytrans.z;
         }
+
         else break;
 
 
@@ -469,17 +472,18 @@ bool CBirrtProblem::CheckSupport(ostream& sout, istream& sinput)
     for(int i =0; i < 2; i++)
         fcgline.push_back(RaveVector<float>(cgline[i].x,cgline[i].y,cgline[i].z));
 
+
+    cglineptr.reset();
     if(c)    
     {
-        //GetEnv()->plot3(center, 1, 0, 0.03, Vector(0,1,0),1 );
-        GetEnv()->drawlinestrip(&(fcgline[0].x),2,sizeof(RaveVector<float>(0, 1, 0, 0)),5, RaveVector<float>(0, 1, 0, 0));
+        
+        cglineptr=GetEnv()->drawlinestrip(&(fcgline[0].x),2,sizeof(RaveVector<float>(0, 1, 0, 0)),5, RaveVector<float>(0, 1, 0, 1));
         RAVELOG_INFO("Supported\n");
         sout << 1 << " ";
     }
     else
     {
-        GetEnv()->drawlinestrip(&(fcgline[0].x),2,sizeof(RaveVector<float>(0, 1, 0, 0)),5, RaveVector<float>(1, 0, 0, 0));
-        //GetEnv()->plot3(center, 1, 0, 0.03, Vector(1,0,0),1 );
+        cglineptr=GetEnv()->drawlinestrip(&(fcgline[0].x),2,sizeof(RaveVector<float>(0, 1, 0, 0)),5, RaveVector<float>(1, 0, 0, 1));
         RAVELOG_INFO("Not Supported\n");
         sout << 0 << " ";
     }
@@ -1321,12 +1325,15 @@ void CBirrtProblem::GetSupportPolygon(std::vector<string>& supportlinks, std::ve
         tempvecs[i] = RaveVector<float>(polyx[i],polyy[i],0);
     }
 
-    
 
     //close the polygon
     tempvecs[tempvecs.size()-1] = RaveVector<float>(polyx[0],polyy[0],0);
     GraphHandlePtr graphptr = GetEnv()->drawlinestrip(&tempvecs[0].x,tempvecs.size(),sizeof(tempvecs[0]),5, RaveVector<float>(0, 1, 1, 1));
-    graphptrs.push_back(graphptr);
+    //graphptrs.push_back(graphptr);
+    // Changed this to use a single global pointer to the last plotted polygon, to prevent keeping a plotted "trail" of polygons
+    // TODO: Make this controllable by a command through the interface
+    supportplotptr.reset();
+    supportplotptr=graphptr;
 
 
     free(pointsOut);

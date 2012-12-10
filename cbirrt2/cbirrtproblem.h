@@ -80,6 +80,9 @@ private:
     /// compute a support polygon based on what links are touching the ground
     void GetSupportPolygon(std::vector<string>& supportlinks, std::vector<dReal>& polyx, std::vector<dReal>& polyy, Vector polyscale = Vector(1.0,1.0,1.0), Vector polytrans = Vector(1.0,1.0,1.0));
 
+    /// compute an "exact" support polygon based on geometry vertices 
+    void GetExactSupportPolygon(std::vector<string>& supportlinks, std::vector<dReal>& polyx, std::vector<dReal>& polyy, Vector polyscale = Vector(1.0,1.0,1.0), Vector polytrans = Vector(1.0,1.0,1.0));
+
     /// compute the distance from a line segment to a point
     void GetDistanceFromLineSegment(dReal cx, dReal cy, dReal ax, dReal ay,
 					  dReal bx, dReal by, dReal& distanceSegment,

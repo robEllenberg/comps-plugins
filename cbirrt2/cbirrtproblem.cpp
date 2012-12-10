@@ -414,8 +414,10 @@ bool CBirrtProblem::CheckSupport(ostream& sout, istream& sinput)
             sinput >> polytrans.z;
         }
 
-        else break;
-
+        else{
+            RAVELOG_ERROR("%s is an invalid command!\n",cmd.c_str());
+            break;
+        }
 
         if( !sinput ) {
             RAVELOG_DEBUG("failed\n");
@@ -550,6 +552,7 @@ void CBirrtProblem::WriteTraj(TrajectoryBasePtr ptraj, string filename)
     //OpenRAVE::planningutils::RetimeActiveDOFTrajectory(ptraj, robot,false,1,"LinearTrajectoryRetimer");
 
     ofstream outfile(filename.c_str(),ios::out);
+    outfile.precision(16);
     //pfulltraj->Write(outfile, Trajectory::TO_IncludeTimestamps|Trajectory::TO_IncludeBaseTransformation);
     ptraj->serialize(outfile);
     outfile.close();
@@ -1157,47 +1160,47 @@ int CBirrtProblem::convexHull2D(coordT* pointsIn, int numPointsIn, coordT** poin
     FILE* junk = fopen("qhullout.txt","w");
 
     exitcode= qh_new_qhull (2, numPointsIn, pointsIn, false,
-                                      flags, junk, junk);
+            flags, junk, junk);
     fclose(junk);
     *numPointsOut = qh num_vertices;
     *pointsOut = (coordT *)malloc(sizeof(coordT)*(*numPointsOut)*2);
 
     FORALLfacets {
-      facet->seen = 0;
+        facet->seen = 0;
     }
 
     FORALLvertices {
-      vertex->seen = 0;
+        vertex->seen = 0;
     }
 
     facet=qh facet_list;
     j=0;
 
     while(1) {
-    if (facet==NULL) {
-        // empty hull
-        break;
-    }
-            vertexA = (vertexT*)facet->vertices->e[0].p;
-            vertexB = (vertexT*)facet->vertices->e[1].p;
-            if (vertexA->seen==0) {
-                    vertexA->seen = 1;
-                    (*pointsOut)[j++] = vertexA->point[0];
-                    (*pointsOut)[j++] = vertexA->point[1];
-            }
-            if (vertexB->seen==0) {
-                    vertexB->seen = 1;
-                    (*pointsOut)[j++] = vertexB->point[0];
-                    (*pointsOut)[j++] = vertexB->point[1];
-            }
+        if (facet==NULL) {
+            // empty hull
+            break;
+        }
+        vertexA = (vertexT*)facet->vertices->e[0].p;
+        vertexB = (vertexT*)facet->vertices->e[1].p;
+        if (vertexA->seen==0) {
+            vertexA->seen = 1;
+            (*pointsOut)[j++] = vertexA->point[0];
+            (*pointsOut)[j++] = vertexA->point[1];
+        }
+        if (vertexB->seen==0) {
+            vertexB->seen = 1;
+            (*pointsOut)[j++] = vertexB->point[0];
+            (*pointsOut)[j++] = vertexB->point[1];
+        }
 
 
-            //qh_printfacet(stderr, facet);
-            facet->seen = 1;
-            newFacet = (facetT*)facet->neighbors->e[0].p;
-            if (newFacet->seen==1) newFacet = (facetT*)facet->neighbors->e[1].p;
-            if (newFacet->seen==1) { break; }
-            facet = newFacet;
+        //qh_printfacet(stderr, facet);
+        facet->seen = 1;
+        newFacet = (facetT*)facet->neighbors->e[0].p;
+        if (newFacet->seen==1) newFacet = (facetT*)facet->neighbors->e[1].p;
+        if (newFacet->seen==1) { break; }
+        facet = newFacet;
     }
 
     qh_freeqhull(!qh_ALL);
@@ -1224,18 +1227,18 @@ void CBirrtProblem::compute_convex_hull(void)
 
     /* initialize dim, numpoints, points[], ismalloc here */
     exitcode= qh_new_qhull (dim, numpoints, points, ismalloc,
-                                                    flags, outfile, errfile);
+            flags, outfile, errfile);
     if (!exitcode) { /* if no error */
-            /* 'qh facet_list' contains the convex hull */
-            FORALLfacets {
-                    /* ... your code ... */
-            }
+        /* 'qh facet_list' contains the convex hull */
+        FORALLfacets {
+            /* ... your code ... */
+        }
     }
     qh_freeqhull(!qh_ALL);
     qh_memfreeshort (&curlong, &totlong);
     if (curlong || totlong)
-            fprintf (errfile, "qhull internal warning (main): did not free %d bytes of long memory (%d pieces)\n",
-                         totlong, curlong);
+        fprintf (errfile, "qhull internal warning (main): did not free %d bytes of long memory (%d pieces)\n",
+                totlong, curlong);
 
     RAVELOG_INFO("qhull done\n");
 }
@@ -1256,33 +1259,31 @@ void CBirrtProblem::GetSupportPolygon(std::vector<string>& supportlinks, std::ve
         {
             if(strcmp(supportlinks[i].c_str(), vlinks[j]->GetName().c_str()) == 0 )
             {
-                RAVELOG_DEBUG("Found match!\n");
+                RAVELOG_DEBUG("Found match for %s!\n",vlinks[j]->GetName().c_str());
                 _listGeomProperties = vlinks[j]->GetGeometries();
 
-                //compute AABBs for the link at identity
+
                 for(int k = 0; k < _listGeomProperties.size(); k++)
                 {
-                //if( _listGeomProperties.size() == 1){
                     Transform _t = _listGeomProperties[k]->GetTransform().inverse();
-                    //bounds = _listGeomProperties[k]->ComputeAABB(_t);
                     bounds = _listGeomProperties[k]->ComputeAABB(_listGeomProperties[k]->GetTransform());
                     Transform offset = vlinks[j]->GetTransform()*_t;
+
                     points.push_back(offset*Vector(bounds.pos.x + bounds.extents.x,bounds.pos.y + bounds.extents.y,bounds.pos.z - bounds.extents.z));
                     points.push_back(offset*Vector(bounds.pos.x - bounds.extents.x,bounds.pos.y + bounds.extents.y,bounds.pos.z - bounds.extents.z));
                     points.push_back(offset*Vector(bounds.pos.x - bounds.extents.x,bounds.pos.y - bounds.extents.y,bounds.pos.z - bounds.extents.z));
                     points.push_back(offset*Vector(bounds.pos.x + bounds.extents.x,bounds.pos.y - bounds.extents.y,bounds.pos.z - bounds.extents.z));
-                    
+
                     points.push_back(offset*Vector(bounds.pos.x + bounds.extents.x,bounds.pos.y + bounds.extents.y,bounds.pos.z + bounds.extents.z));
                     points.push_back(offset*Vector(bounds.pos.x - bounds.extents.x,bounds.pos.y + bounds.extents.y,bounds.pos.z + bounds.extents.z));
                     points.push_back(offset*Vector(bounds.pos.x - bounds.extents.x,bounds.pos.y - bounds.extents.y,bounds.pos.z + bounds.extents.z));
                     points.push_back(offset*Vector(bounds.pos.x + bounds.extents.x,bounds.pos.y - bounds.extents.y,bounds.pos.z + bounds.extents.z));
+
                 }
-                break;
             }
-
-
         }
     }
+
     RAVELOG_INFO("Num support points in to qhull: %d\n",points.size());
     std::vector<coordT> pointsin(points.size()*2);
     std::vector<RaveVector<float> > plotvecs(points.size());
@@ -1301,7 +1302,7 @@ void CBirrtProblem::GetSupportPolygon(std::vector<string>& supportlinks, std::ve
 
     convexHull2D(&pointsin[0], points.size(), &pointsOut, &numPointsOut);
     RAVELOG_INFO("Num support points out of qhull:: %d\n",numPointsOut);
-    
+
     std::vector<RaveVector<float> > tempvecs(numPointsOut +1);
     polyx.resize(numPointsOut);
     polyy.resize(numPointsOut);
@@ -1353,6 +1354,7 @@ bool CBirrtProblem::Traj(ostream& sout, istream& sinput)
     //ptraj->Init(robot->GetConfigurationSpecification());
 
     ifstream infile(filename.c_str(),ios::in);
+    infile.precision(16);
     ptraj->deserialize(infile);
 
     RAVELOG_VERBOSE("executing traj\n");

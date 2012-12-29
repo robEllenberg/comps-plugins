@@ -642,6 +642,7 @@ int CBirrtProblem::RunCBirrt(ostream& sout, istream& sinput)
     bool bSmoothTrajOnly = false;
     int nvert = 0;
     int numsupportlinks = 0;
+    bool exactsupport = false;
     std::vector<string> supportlinks;
     KinBodyPtr pheld;
     string tempstring;
@@ -746,6 +747,9 @@ int CBirrtProblem::RunCBirrt(ostream& sout, istream& sinput)
                 supportlinks.push_back(tempstring);
             }
         }
+        else if(stricmp(cmd.c_str(), "exactsupport") == 0 ){
+            sinput >> exactsupport;
+        }
         else if(stricmp(cmd.c_str(), "polyscale") == 0 ){
             sinput >> polyscale.x;
             sinput >> polyscale.y;
@@ -800,8 +804,12 @@ int CBirrtProblem::RunCBirrt(ostream& sout, istream& sinput)
         }
     }
 
-    if(supportlinks.size() != 0)
-        GetSupportPolygon(supportlinks,params->vsupportpolyx,params->vsupportpolyy,polyscale,polytrans);
+    if(supportlinks.size() != 0){
+        if (exactsupport)
+            GetExactSupportPolygon(supportlinks,params->vsupportpolyx,params->vsupportpolyy,polyscale,polytrans);
+        else
+            GetSupportPolygon(supportlinks,params->vsupportpolyx,params->vsupportpolyy,polyscale,polytrans);
+    }
 
 
     if(starts.size() == 0 && !params->bsamplingstart)

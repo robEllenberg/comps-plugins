@@ -170,6 +170,7 @@ bool CBirrtProblem::DoGeneralIK(ostream& sout, istream& sinput)
     bool bExecute = false;
     bool bBalance = false;
     bool bGetTime = false;
+    bool bReturnSolved = false;
     bool bNoRot = false;
     bool bReturnClosest = false;
     std::vector<string> supportlinks;
@@ -265,6 +266,9 @@ bool CBirrtProblem::DoGeneralIK(ostream& sout, istream& sinput)
             sinput >> polytrans.y;
             sinput >> polytrans.z;
         }
+        else if(stricmp(cmd.c_str(), "returnsolved") == 0 ){
+            bReturnSolved = true;
+        }
         else break;
 
 
@@ -323,27 +327,23 @@ bool CBirrtProblem::DoGeneralIK(ostream& sout, istream& sinput)
     boost::shared_ptr<std::vector<dReal> > pqResult(new std::vector<dReal> );
     //PrintMatrix(&ikparams[0], 1, ikparams.size(), "ikparams");
 
+    char solvedflag = 'F';
+    int timetaken = timeGetTime() - starttime;
     if(_pIkSolver->Solve(IkParameterization(), q0, ikparams, false, pqResult) )
     {
-
+        solvedflag='T';
         qResult = *pqResult.get();
-        int timetaken = timeGetTime() - starttime;
         for(int i = 0; i < qResult.size(); i++)
         {
             sout << qResult[i] << " ";
 
         }
-        if(bGetTime)
-            sout << timetaken << " ";
-
         RAVELOG_INFO("Solution Found! (%d ms)\n",timetaken);
         if(bExecute)
             robot->SetActiveDOFValues(qResult);
-        return true;
     }
     else
     {
-        int timetaken = timeGetTime() - starttime;
         if(bReturnClosest)
         {
             qResult = *pqResult.get();
@@ -353,11 +353,16 @@ bool CBirrtProblem::DoGeneralIK(ostream& sout, istream& sinput)
             }
         }
 
-        if(bGetTime)
-            sout << timetaken << " ";
         RAVELOG_INFO("No IK Solution Found (%d ms)\n",timetaken);
-        return true;
     }
+
+    if(bGetTime){
+        sout << timetaken << " ";
+    }
+
+    if(bReturnSolved)
+        sout << solvedflag  << " ";
+    return true;
 }
 
 

@@ -125,7 +125,7 @@ bool CBirrtPlanner::InitPlan(RobotBasePtr  pbase, PlannerParametersConstPtr ppar
     if( pparams.get() != NULL )
     {
         _parameters.reset(new CBirrtParameters());
-        _parameters->copy(boost::static_pointer_cast<const CBirrtParameters>(pparams));
+        *_parameters=*(boost::shared_polymorphic_downcast<const CBirrtParameters >(pparams));
     }
     else
     {

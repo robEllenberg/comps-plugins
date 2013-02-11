@@ -77,10 +77,21 @@ public:
 
     enum PlannerState * pplannerstate;
 
+    /// Overloaded to force all properties to be copied in planner.
+    CBirrtParameters& operator=(const CBirrtParameters& r)
+    {
+        //TODO: Make sure base class assignment runs?
+        std::stringstream ss;
+        ss << std::setprecision(std::numeric_limits<dReal>::digits10+1);
+        ss << r;
+        ss >> *this;
+        return *this;
+    }
+
 protected:
     bool bProcessing;
 
-    virtual bool serialize(std::ostream& O) const
+    bool serialize(std::ostream& O) const
     {
         if( !PlannerParameters::serialize(O) )
             return false;
@@ -145,7 +156,7 @@ protected:
         return !!O;
     }
 
-    ProcessElement startElement(const std::string& name, const std::list<std::pair<std::string,std::string> >& atts)
+    virtual ProcessElement startElement(const std::string& name, const std::list<std::pair<std::string,std::string> >& atts)
     {
         if( bProcessing )
         {
@@ -185,6 +196,7 @@ protected:
                 TaskSpaceRegionChain tmp;
                 tmp.deserialize(_ss);
                 vTSRChains.push_back(tmp);
+                RAVELOG_DEBUG("Deserialized TSR!\n");
             }
             else if( stricmp(name.c_str(), "psample") == 0 )
             {        
@@ -286,6 +298,8 @@ protected:
 
         return PlannerParameters::endElement(name);
     }
+
+    friend std::ostream& operator<<(std::ostream& O, const CBirrtParameters& v);
 };
 
 #endif

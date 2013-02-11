@@ -121,14 +121,11 @@ bool CBirrtPlanner::InitPlan(RobotBasePtr  pbase, PlannerParametersConstPtr ppar
 #ifdef TRACK_COLLISIONS
         colfile.open("cols.txt",ios::app);
 #endif
-
     RAVELOG_DEBUG("Initializing Planner\n");
     if( pparams.get() != NULL )
     {
         _parameters.reset(new CBirrtParameters());
-        _parameters->copy(pparams);
-        //_parameters->copy(pparams);
-       
+        _parameters->copy(boost::static_pointer_cast<const CBirrtParameters>(pparams));
     }
     else
     {
@@ -498,7 +495,7 @@ bool CBirrtPlanner::InitPlan(RobotBasePtr  pbase, PlannerParametersConstPtr ppar
         }
     }
 
-    RAVELOG_DEBUG("Initializaing Start State\n");
+    RAVELOG_DEBUG("Initializing Start State\n");
 
     //don't touch ikguess if one given, if not use start configuration, if no start use random (new random each time)
     if(_parameters->vikguess.size() == 0 && _pForwardTree->GetSize() > 0)

@@ -43,6 +43,13 @@
 #include "stdafx.h"
 #include <rave/plugin.h>
 
+std::ostream& operator<<(std::ostream& O, const CBirrtParameters& v)
+{
+    O << "<" << v.GetXMLId() << ">" << endl;
+    v.serialize(O);
+    O << "</" << v.GetXMLId() << ">" << endl;
+    return O;
+}
 
 InterfaceBasePtr CreateInterfaceValidated(InterfaceType type, const std::string& interfacename, std::istream& sinput, EnvironmentBasePtr penv)
 {

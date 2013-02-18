@@ -80,9 +80,9 @@ class TSR():
         return MakeTransform(S,w[:,0:3].T)
     
     def __init__(self, T0_w_in = mat(eye(4)), Tw_e_in = mat(eye(4)), Bw_in = mat(mat(zeros([1,12]))), manipindex_in = -1, bodyandlink_in = 'NULL'):
-      self.T0_w = T0_w_in
-      self.Tw_e = Tw_e_in
-      self.Bw = Bw_in
+      self.T0_w = copy.deepcopy(T0_w_in)
+      self.Tw_e = copy.deepcopy(Tw_e_in)
+      self.Bw = copy.deepcopy(Bw_in)
       self.manipindex = manipindex_in
       self.bodyandlink = bodyandlink_in
 

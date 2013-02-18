@@ -9,3 +9,6 @@ cscope.out
 Makefile
 doc
 *~
+manifest.xml
+rospack_*
+qtcreator

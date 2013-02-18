@@ -30,13 +30,14 @@
 '''Rodrigues formula
 Input: 1x3 array of rotations about x, y, and z
 Output: 3x3 rotation matrix'''
-from numpy import *
+from numpy import array,mat,sin,cos,dot,eye
+from numpy.linalg import norm
 
 def rodrigues(r):
     def S(n):
         Sn = array([[0,-n[2],n[1]],[n[2],0,-n[0]],[-n[1],n[0],0]])
         return Sn
-    theta = linalg.norm(r)
+    theta = norm(r)
     if theta > 1e-30:
         n = r/theta
         Sn = S(n)

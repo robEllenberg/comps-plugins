@@ -423,15 +423,9 @@ bool CBirrtProblem::CheckSupport(ostream& sout, istream& sinput)
             //Use the slower vertex-based method to find the exact support polygon. 
             sinput >> useExactPolygon;
         }
-
         else{
             RAVELOG_ERROR("%s is an invalid command!\n",cmd.c_str());
             break;
-        }
-
-        if( !sinput ) {
-            RAVELOG_DEBUG("failed\n");
-            return false;
         }
     }
    
@@ -801,13 +795,12 @@ int CBirrtProblem::RunCBirrt(ostream& sout, istream& sinput)
                sinput >> smoothtrajfilename;
                RAVELOG_INFO("smoothing only!\n");
         }
-        else break;
-        if( !sinput ) {
-            RAVELOG_DEBUG("failed\n");
-            sout << 0;
-            return -1;
+        else{
+            RAVELOG_ERROR("%s is an invalid command!\n",cmd.c_str());
+            break;
         }
     }
+
 
     if(supportlinks.size() != 0){
         if (exactsupport)
@@ -926,6 +919,7 @@ int CBirrtProblem::RunCBirrt(ostream& sout, istream& sinput)
     }
     else
     {
+        RAVELOG_INFO("Planning in same thread\n");
         _plannerState = PS_Planning;
         if(!bSmoothTrajOnly)
             bSuccess = _pTCplanner->PlanPath(ptraj);

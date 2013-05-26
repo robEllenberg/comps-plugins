@@ -121,11 +121,12 @@ bool CBirrtPlanner::InitPlan(RobotBasePtr  pbase, PlannerParametersConstPtr ppar
 #ifdef TRACK_COLLISIONS
         colfile.open("cols.txt",ios::app);
 #endif
+
     RAVELOG_DEBUG("Initializing Planner\n");
     if( pparams.get() != NULL )
     {
         _parameters.reset(new CBirrtParameters());
-        *_parameters=*(boost::shared_polymorphic_downcast<const CBirrtParameters >(pparams));
+        _parameters->copy(pparams);
     }
     else
     {
@@ -164,6 +165,13 @@ bool CBirrtPlanner::InitPlan(RobotBasePtr  pbase, PlannerParametersConstPtr ppar
     _pRobot->GetActiveDOFLimits(_lowerLimit,_upperLimit);
     
     
+    _viscircular.resize(GetNumDOF(),0);
+    for(size_t i = 0; i < _pRobot->GetActiveDOFIndices().size(); ++i) {
+       int dof = _pRobot->GetActiveDOFIndices().at(i);
+       KinBody::JointPtr pjoint = _pRobot->GetJointFromDOFIndex(dof);
+       _viscircular[i] = pjoint->IsCircular(dof-pjoint->GetDOFIndex());
+    }
+
     //need to know mapping between real joint indices and active indices in case there is an attached IK solver
     vJointIndToActiveInd.resize(_pRobot->GetDOF(),-1);
     for(int i = 0; i < _pRobot->GetActiveDOF(); i++)
@@ -549,12 +557,12 @@ OpenRAVE::PlannerStatus CBirrtPlanner::PlanPath(TrajectoryBasePtr ptraj)
             return CleanUpReturn(false);
         }
 
-
         if(_pForwardTree->GetSize() == 0)
         {
+            RAVELOG_DEBUG("Forward Tree is empty\n");
+
             while(1)
             {
-
                 if(_parameters->vikguess.size() == 0)
                 {
                     _PickRandomConfig();
@@ -578,21 +586,23 @@ OpenRAVE::PlannerStatus CBirrtPlanner::PlanPath(TrajectoryBasePtr ptraj)
 
         if(_pBackwardTree->GetSize() == 0)
         {
+            RAVELOG_DEBUG("Backward Tree is empty\n");
             while(1)
             {
                 if(_pBackwardTree->_pMakeNext->AddRootConfiguration(_pBackwardTree,_parameters->vikguess) )
                     break;
                 if(timeGetThreadTime() - starttime > max_firstik_time)
-		{
+                {
                     RAVELOG_FATAL("Unable to find a goal IK solution in %f seconds, planner failed\n",(dReal)max_firstik_time);
-		    return CleanUpReturn(false);
-		}
+                    return CleanUpReturn(false);
+                }
             }
             RAVELOG_INFO("Got first goal ik solution!\n");
         }
 
         if(RANDOM_FLOAT() < P_SAMPLE_IK)
         {
+            RAVELOG_DEBUG("Sampling IK...\n");
             if(_parameters->bsamplingstart)
                 _pForwardTree->_pMakeNext->AddRootConfiguration(_pForwardTree,_parameters->vikguess);
             if(_parameters->bsamplinggoal)
@@ -603,11 +613,13 @@ OpenRAVE::PlannerStatus CBirrtPlanner::PlanPath(TrajectoryBasePtr ptraj)
 
         //RAVELOG_INFO("TreeA: %d    TreeB: %d\n",TreeB->GetSize(),  TreeB->GetSize());
 
-
+        RAVELOG_DEBUG("Sampling Random Config\n");
         _PickRandomConfig();
 
         //Tree A
         iclosest = _FindClosest(TreeA);
+        RAVELOG_DEBUG("Extending TreeA toward random config\n");
+
         TreeA->_pMakeNext->MakeNodes(TreeA->GetSize(),TreeA->GetNode(iclosest),&_randomConfig,&NewNodes,this,false);
         
         if(NewNodes.size() > 0)
@@ -635,6 +647,7 @@ OpenRAVE::PlannerStatus CBirrtPlanner::PlanPath(TrajectoryBasePtr ptraj)
         }
         //Tree B
         iclosest = _FindClosest(TreeB);
+        RAVELOG_DEBUG("Extending TreeB toward random config\n");
         if(TreeB->_pMakeNext->MakeNodes(TreeB->GetSize(),TreeB->GetNode(iclosest),&_randomConfig,&NewNodes,this,false))
         {
             RAVELOG_DEBUG("TreeB MakeNodes Has Generated: \n");
@@ -1036,7 +1049,15 @@ void CBirrtPlanner::_PickRandomConfig()
 {
 
     for (int i = 0; i < GetNumDOF(); i++)
-        _randomConfig[i] = _lowerLimit[i] + RANDOM_FLOAT(_validRange[i]);
+    {
+        if( _viscircular[i]) {
+            _randomConfig[i] = -PI + 2*PI*RANDOM_FLOAT();
+        }
+        else{
+            _randomConfig[i] = _lowerLimit[i] + RANDOM_FLOAT(_validRange[i]);
+
+        }
+    }
 }
 
 
@@ -1400,7 +1421,7 @@ bool CBirrtPlanner::MakeNext::MakeNodes(int TreeSize, RrtNode* StartNode, std::v
 {
    
     assert(StartNode != NULL);
-
+    RAVELOG_DEBUG("In MakeNodes\n");
     bExtendConnect = true;
 
     startConfig = StartNode->GetData();
@@ -1601,6 +1622,7 @@ bool CBirrtPlanner::MakeNext::MakeNodes(int TreeSize, RrtNode* StartNode, std::v
         }
 
         numsteps++;
+        //RAVELOG_DEBUG("numsteps: %d\n",numsteps);
 
     }while(bExtendConnect);  
 
